@@ -87,7 +87,7 @@ export interface UserStats {
 export const dsaApi = createApi({
   reducerPath: 'dsaApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/api/v1/dsa`,
+    baseUrl: `${API_BASE_URL}/dsa`,
     credentials: 'include',
   }),
   tagTypes: ['Topic', 'Problem', 'Progress', 'DSASheet', 'Stats'],
