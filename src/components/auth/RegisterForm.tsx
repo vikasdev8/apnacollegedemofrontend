@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { useRegisterMutation } from '@/lib/redux/api/authApi';
 import { useAppDispatch } from '@/lib/redux/store';
-import { setUser, setLoading } from '@/lib/redux/slices/globalSlice';
-import { useRouter } from 'next/navigation';
+import { setLoading } from '@/lib/redux/slices/globalSlice';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -82,8 +81,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     dispatch(setLoading(true));
 
     try {
-      const { confirmPassword, ...registerData } = formData;
-  await register(registerData).unwrap();
+      const registerData = {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: formData.role,
+      };
+      await register(registerData).unwrap();
       
       // Show success message and switch to login
       alert('Registration successful! Please log in with your credentials.');

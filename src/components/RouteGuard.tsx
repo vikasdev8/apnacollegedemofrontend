@@ -17,7 +17,7 @@ export default function RouteGuard({
   requiresAdmin = false 
 }: RouteGuardProps) {
   const { user, isAuthenticated } = useAppSelector(state => state.globalState);
-  const { data: profileData, isLoading: profileLoading, error } = useGetProfileQuery();
+  const { data: profileData, isLoading: profileLoading } = useGetProfileQuery();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -56,7 +56,7 @@ export default function RouteGuard({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md p-6">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="mb-4">You don't have permission to access this area.</p>
+          <p className="mb-4">You don&apos;t have permission to access this area.</p>
           <button 
             onClick={() => router.push('/dashboard')}
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"

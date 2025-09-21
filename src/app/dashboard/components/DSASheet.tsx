@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { useGetDsaSheetQuery, useGetUserStatsQuery, useUpdateProgressMutation } from '../../../store/dsaApi';
 import { ChevronDown, ChevronRight, ExternalLink, Trophy, Target, BookOpen, TrendingUp } from 'lucide-react';
 import type { TopicWithProgress, ProblemWithProgress, ChapterWithTopics } from '../../../store/dsaApi';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { SerializedError } from '@reduxjs/toolkit';
 
 export default function DSASheet() {
   const { data: dsaSheet, isLoading: isSheetLoading, error: sheetError } = useGetDsaSheetQuery();
@@ -98,9 +100,17 @@ export default function DSASheet() {
 
   // Error states (e.g., unauthorized)
   // Treat both 401 and 403 as unauthorized (backend guard may return 403 when session missing)
-  const sheetStatus = (sheetError as any)?.status ?? (sheetError as any)?.originalStatus;
-  const statsStatus = (statsError as any)?.status ?? (statsError as any)?.originalStatus;
-  const unauthorized = [401, 403].includes(sheetStatus) || [401, 403].includes(statsStatus);
+  const getHttpStatus = (err: unknown): number | undefined => {
+    if (!err) return undefined;
+    const fe = err as FetchBaseQueryError;
+    if (typeof fe?.status === 'number') return fe.status as number;
+    const oe = err as { originalStatus?: unknown };
+    if (typeof oe?.originalStatus === 'number') return oe.originalStatus as number;
+    return undefined;
+  };
+  const sheetStatus = getHttpStatus(sheetError as FetchBaseQueryError | SerializedError | undefined);
+  const statsStatus = getHttpStatus(statsError as FetchBaseQueryError | SerializedError | undefined);
+  const unauthorized = [401, 403].includes(sheetStatus ?? -1) || [401, 403].includes(statsStatus ?? -1);
   if (unauthorized) {
     return (
       <div className="container mx-auto p-6">

@@ -3,6 +3,8 @@
 import { useCreateTopicMutation } from '../../../../store/dsaApi';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { SerializedError } from '@reduxjs/toolkit';
 
 export default function NewTopicPage() {
   const router = useRouter();
@@ -79,7 +81,21 @@ export default function NewTopicPage() {
         
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
-            {(error as any)?.data?.message || 'Error creating topic. Please try again.'}
+            {(() => {
+              const e = error as FetchBaseQueryError | SerializedError | undefined;
+              if (!e) return 'Error creating topic. Please try again.';
+              if ('data' in e) {
+                const data = e.data;
+                if (data && typeof data === 'object' && 'message' in (data as Record<string, unknown>)) {
+                  const msg = (data as { message?: string }).message;
+                  if (msg) return msg;
+                }
+              }
+              if (typeof (e as SerializedError).message === 'string' && (e as SerializedError).message) {
+                return (e as SerializedError).message as string;
+              }
+              return 'Error creating topic. Please try again.';
+            })()}
           </div>
         )}
         
