@@ -97,7 +97,10 @@ export default function DSASheet() {
   }
 
   // Error states (e.g., unauthorized)
-  const unauthorized = (sheetError as any)?.status === 401 || (statsError as any)?.status === 401;
+  // Treat both 401 and 403 as unauthorized (backend guard may return 403 when session missing)
+  const sheetStatus = (sheetError as any)?.status ?? (sheetError as any)?.originalStatus;
+  const statsStatus = (statsError as any)?.status ?? (statsError as any)?.originalStatus;
+  const unauthorized = [401, 403].includes(sheetStatus) || [401, 403].includes(statsStatus);
   if (unauthorized) {
     return (
       <div className="container mx-auto p-6">
